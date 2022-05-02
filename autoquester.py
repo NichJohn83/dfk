@@ -8,7 +8,6 @@ import hero.utils.utils as hero_utils
 import quests.quest_v2 as quest_v2
 import hero.hero as heroes
 from quests.training import dancing, arm_wrestling, alchemist_assistance, card_game, darts, helping_the_farm, puzzle_solving, game_of_ball
-# import CONSTANTS
 from web3 import Web3
 from datetime import datetime, date
 from quests.utils import utils as quest_utils
@@ -28,7 +27,6 @@ QUESTING_ADDRESSES = {
 }
 
 today = date.today()
-# private_key = base64.b64decode(CONSTANTS.PRIVATE_KEY_ECODED).decode('utf-8')
 private_key = base64.b64decode(os.getenv('PRIVATE_KEY_ENCODED')).decode('utf-8')
 
 start_log_path = os.getenv('QUEST_START_LOG_PATH')
@@ -98,7 +96,7 @@ def complete_quests():
 def start_quests():
     readable_heroes = []
     
-    for id in CONSTANTS.TRAINING_HEROES:
+    for id in training_heroes:
         logger.info("Processing hero #"+str(id))
         # owner = heroes.get_owner(id, rpc_server)
         hero = heroes.get_hero(id, rpc_server)
