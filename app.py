@@ -1,3 +1,4 @@
+from audioop import reverse
 from flask import Flask, render_template
 import os
 import atexit
@@ -38,19 +39,19 @@ def start_logs():
     
     files = os.listdir("logs/quests_started")
     
-    return render_template('start_logs.html', logfiles = files)
+    return render_template('start_logs.html', logfiles = reversed(files))
     
 @app.route("/logs/complete_logs")
 def complete_logs():
     files = os.listdir("logs/quests_completed")
     
-    return render_template('complete_logs.html', logfiles = files)
+    return render_template('complete_logs.html', logfiles = reversed(files))
 
 @app.route("/logs/error_logs")
 def error_logs():
     files = os.listdir("logs/errors")
     
-    return render_template('error_logs.html', logfiles = files)
+    return render_template('error_logs.html', logfiles = reversed(files))
 
 @app.route("/logs/<type>/<file>")
 def show_log(file, type=None):
