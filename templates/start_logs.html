@@ -1,0 +1,7 @@
+<html>
+
+    {% for log in logfiles %}
+        <a href="{{ url_for('show_log', type = 'start', file=log) }}"> {{log}} </a> <br>
+    {% endfor %}
+
+</html>

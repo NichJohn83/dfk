@@ -1,5 +1,7 @@
-
+import collections
 import json
+from datetime import datetime
+import math
 
 FAIL_ON_NOT_FOUND = False
 
@@ -261,3 +263,64 @@ def parse_names(names_raw_string):
         raise Exception("Unhandled unicode found")
 
     return json.loads(names_raw_string)
+
+
+def get_current_stamina(hero):
+    
+        cur_time = int(round(datetime.now().timestamp()))
+        stamina_full = hero.get('state').get('staminaFullAt')
+        max_stamina = hero.get('stats').get('stamina')
+        
+        # print(f"cur_time: {cur_time}")
+        # print(f"stamina full at: {stamina_full}")
+        
+        seconds_until_full = stamina_full-cur_time
+        minutes_until_full = math.ceil(seconds_until_full/60)
+        
+        # print(f"minutes until full: {minutes_until_full}")
+        
+        stamina_left_to_recover = math.ceil(minutes_until_full/20)
+        # print(f"stamina_left_to_recover: {stamina_left_to_recover}")
+        
+        cur_stamina = max_stamina - stamina_left_to_recover
+        
+        return cur_stamina
+    
+def get_highest_stat(hero):
+    
+    stats = hero.get('stats')
+            
+    green_boost = hero.get('info').get('statGenes').get('statBoost1')
+    blue_boost = hero.get('info').get('statGenes').get('statBoost2')
+    
+    for stat in stats:
+        if stat == green_boost:
+            stats[stat] += 1
+        if stat == blue_boost:
+            stats[stat] += 3
+                
+    return max(filter(lambda x: x not in ('hp', 'mp', 'stamina'), stats), key=stats.get)
+
+
+def group_by_highest_stat(heroes):
+    
+    groups = collections.defaultdict(list)
+    
+    for hero in heroes:
+        highest_stat = get_highest_stat(hero)
+        groups[highest_stat].append(hero)
+        
+    return groups
+
+def is_ready_to_quest(hero):
+    
+    ready = False
+    cur_stamina = get_current_stamina(hero)
+
+    if cur_stamina >= 25:
+        ready = True    
+    
+    return ready
+    
+    
+

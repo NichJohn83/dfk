@@ -1,0 +1,16 @@
+ERROR STARTING QUEST -- [119457] -- WITH EXCEPTION Transaction HexBytes('0xab59cf7d1aea07135cef0596826091b83408d62e1c52cdca9a57f605a4d388ab') is not in the chain after 30 secondsERROR CLAIMING -- [126757, 138357, 139544, 153289, 141651, 153222] -- WITH EXCEPTION {'code': -32000, 'message': 'replacement transaction underpriced'}ERROR STARTING QUEST -- [126757, 138357, 139544, 153289, 141651, 153222] -- WITH EXCEPTION execution reverted: already questingERROR STARTING QUEST -- [134660] -- WITH EXCEPTION execution reverted: already questing
+ERROR STARTING QUEST -- [134660] -- WITH EXCEPTION execution reverted: already questing
+ERROR STARTING QUEST -- [134660] -- WITH EXCEPTION execution reverted: already questing
+ERROR STARTING QUEST -- [134660] -- WITH EXCEPTION execution reverted: already questing
+ERROR STARTING QUEST -- [143964] -- WITH EXCEPTION execution reverted: already questing
+ERROR STARTING QUEST -- [119457] -- WITH EXCEPTION execution reverted: already questing
+ERROR STARTING QUEST -- [139552] -- WITH EXCEPTION execution reverted: already questing
+2022-05-02 11:54:33.170508 -- ERROR CLAIMING -- [139552] -- WITH EXCEPTION {'code': -32000, 'message': 'nonce too low'}ERROR STARTING QUEST -- [126757, 138357, 139544, 153289, 141651, 153222] -- WITH EXCEPTION execution reverted: already questing
+ERROR STARTING QUEST -- [139552] -- WITH EXCEPTION execution reverted: already questing
+ERROR STARTING QUEST -- [126757, 138357, 139544, 153289, 141651, 153222] -- WITH EXCEPTION execution reverted: already questing
+ERROR STARTING QUEST -- [126757, 138357, 139544, 153289, 141651, 153222] -- WITH EXCEPTION execution reverted: already questing
+ERROR STARTING QUEST -- [126757, 138357, 139544, 153289, 141651, 153222] -- WITH EXCEPTION execution reverted: already questing
+ERROR STARTING QUEST -- [95510] -- WITH EXCEPTION {'code': -32000, 'message': 'nonce too low'}
+ERROR STARTING QUEST -- [134660] -- WITH EXCEPTION execution reverted: already questing
+ERROR STARTING QUEST -- [134660] -- WITH EXCEPTION execution reverted: already questing
+ERROR STARTING QUEST -- [134660] -- WITH EXCEPTION execution reverted: already questing
