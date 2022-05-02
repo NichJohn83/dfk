@@ -8,11 +8,11 @@ import hero.utils.utils as hero_utils
 import quests.quest_v2 as quest_v2
 import hero.hero as heroes
 from quests.training import dancing, arm_wrestling, alchemist_assistance, card_game, darts, helping_the_farm, puzzle_solving, game_of_ball
-import CONSTANTS
+# import CONSTANTS
 from web3 import Web3
 from datetime import datetime, date
 from quests.utils import utils as quest_utils
-import math
+# import math
 import base64
 
 
