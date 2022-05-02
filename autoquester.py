@@ -1,5 +1,6 @@
 import logging
 import json
+import os
 import time
 import sys
 from tokenize import group
@@ -27,7 +28,14 @@ QUESTING_ADDRESSES = {
 }
 
 today = date.today()
-private_key = base64.b64decode(CONSTANTS.PRIVATE_KEY_ECODED).decode('utf-8')
+# private_key = base64.b64decode(CONSTANTS.PRIVATE_KEY_ECODED).decode('utf-8')
+private_key = base64.b64decode(os.getenv('PRIVATE_KEY_ENCODED')).decode('utf-8')
+
+start_log_path = os.getenv('QUEST_START_LOG_PATH')
+completed_log_path = os.getenv('QUEST_COMPLETED_LOG_PATH')
+error_log_path = os.getenv('QUEST_ERROR_LOG_PATH')
+
+training_heroes = [int(hero_id) for hero_id in json.loads(os.getenv('TRAINING_HEROES'))]
 
 log_format = '%(asctime)s|%(name)s|%(levelname)s: %(message)s'
 
@@ -70,7 +78,7 @@ def complete_quests():
                     tx_receipt = questV2.complete_quest(group[0], private_key, w3.eth.getTransactionCount(account_address), gas_price_gwei, tx_timeout)
                     quest_result = questV2.parse_complete_quest_receipt(tx_receipt)
                     
-                    with open(f"{CONSTANTS.QUEST_COMPLETE_LOG_PATH}/{today}.txt", "a+") as f:
+                    with open(f"{start_log_path}/{today}.txt", "a+") as f:
                         f.write(f"{datetime.now()} -- CLAIMED HEROES {group} -- REWARDS - {str(quest_result)}\n")
                     logger.info("Rewards: " + str(quest_result))
                 else:
@@ -78,7 +86,7 @@ def complete_quests():
                     
             except Exception as e:
                 still_questing_heroes.append(group)
-                with open(f"{CONSTANTS.QUEST_ERROR_LOG_PATH}/{today}.txt", "a+") as f:
+                with open(f"{error_log_path}/{today}.txt", "a+") as f:
                     f.write(f"{datetime.now()} -- ERROR CLAIMING -- {group} -- WITH EXCEPTION {e}")
                 
     with open('questing_groups.txt', 'w+') as f:
@@ -123,13 +131,13 @@ def start_quests():
                         print(f"Questing {group} for {stat}")
                         quest_contract = QUESTING_ADDRESSES[stat]
                         questV2.start_quest(quest_contract, group, attempts, level, private_key, w3.eth.getTransactionCount(account_address), gas_price_gwei, tx_timeout)
-                        with open(f"{CONSTANTS.QUEST_START_LOG_PATH}/{today}.txt", 'a+') as f:
+                        with open(f"{start_log_path}/{today}.txt", 'a+') as f:
                             f.write(f"{datetime.now()} -- SENT HEROES {group} ON {stat} QUEST\n")
                         with open(f"questing_groups.txt", "a+") as f:
                             f.write(f"{group}\n")
                     except Exception as e:
                         print(e)
-                        with open(f"{CONSTANTS.QUEST_ERROR_LOG_PATH}/{today}.txt", "a+") as f:
+                        with open(f"{error_log_path}/{today}.txt", "a+") as f:
                             f.write(f"ERROR STARTING QUEST -- {group} -- WITH EXCEPTION {e}\n")
 
 if __name__ == "__main__":
