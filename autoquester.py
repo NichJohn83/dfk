@@ -76,7 +76,7 @@ def complete_quests():
                     tx_receipt = questV2.complete_quest(group[0], private_key, w3.eth.getTransactionCount(account_address), gas_price_gwei, tx_timeout)
                     quest_result = questV2.parse_complete_quest_receipt(tx_receipt)
                     
-                    with open(f"{start_log_path}/{today}.txt", "a+") as f:
+                    with open(f"{completed_log_path}/{today}.txt", "a+") as f:
                         f.write(f"{datetime.now()} -- CLAIMED HEROES {group} -- REWARDS - {str(quest_result)}\n")
                     logger.info("Rewards: " + str(quest_result))
                 else:
@@ -136,7 +136,7 @@ def start_quests():
                     except Exception as e:
                         print(e)
                         with open(f"{error_log_path}/{today}.txt", "a+") as f:
-                            f.write(f"ERROR STARTING QUEST -- {group} -- WITH EXCEPTION {e}\n")
+                            f.write(f"{datetime.now()} -- ERROR STARTING QUEST -- {group} -- WITH EXCEPTION {e}\n")
 
 if __name__ == "__main__":
         
