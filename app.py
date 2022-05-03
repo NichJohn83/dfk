@@ -76,6 +76,8 @@ def show_log(file, type=None):
 def clear_questing_file():
     file = open("questing_groups.txt","w")
     file.close()
+    
+    return "Clear"
 
 if __name__ == '__main__':
       
