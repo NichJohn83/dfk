@@ -1,8 +1,9 @@
-from audioop import reverse
 from flask import Flask, render_template
 import os
 import atexit
 import autoquester
+from pythonping import ping
+
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from quests.quest_core_v2 import complete_quest, start_quest
@@ -15,14 +16,14 @@ def autoquest():
     autoquester.start_quests()
     
 def ping():
-    return ping('127.0.0.1', verbose=True)
+    return ping(target='127.0.0.1')
 
 scheduler = BackgroundScheduler()
 scheduler.add_job(func=autoquest, trigger="interval", seconds=1200)
 scheduler.start()
 
 scheduler = BackgroundScheduler()
-scheduler.add_job(func=ping, trigger="interval", seconds=120)
+scheduler.add_job(func=ping, trigger="interval", seconds=5)
 scheduler.start()
 
 # Shut down the scheduler when exiting the app
