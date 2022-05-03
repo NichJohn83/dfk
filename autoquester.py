@@ -53,43 +53,25 @@ questV2 = quest_v2.Quest(rpc_server, logger)
 ####################################################################################################################################
 
 def complete_quests():
-    questing_heroes = []
-    still_questing_heroes = []
-    
-    with open('questing_groups.txt') as f:
-        lines = f.read().splitlines()
-        for line in lines:
-            new_line = line[1:-1].split(',')
-            
-            heroes = [int(hero_id) for hero_id in new_line]
-            questing_heroes.append(heroes)
 
-    print(questing_heroes)
-    if questing_heroes:
-        for group in questing_heroes:
+    for hero in training_heroes: #indiscriminately 
+        try:    
+            quest_info = quest_utils.human_readable_quest(questV2.get_hero_quest(hero))
             
-            try:    
-                quest_info = quest_utils.human_readable_quest(questV2.get_hero_quest(group[0]))
+            if quest_info['completeAtTime'] and time.time() > quest_info['completeAtTime']:
                 
-                if time.time() > quest_info['completeAtTime']:
-                    
-                    tx_receipt = questV2.complete_quest(group[0], private_key, w3.eth.getTransactionCount(account_address), gas_price_gwei, tx_timeout)
-                    quest_result = questV2.parse_complete_quest_receipt(tx_receipt)
-                    
-                    with open(f"{completed_log_path}/{today}.txt", "a+") as f:
-                        f.write(f"{datetime.now()} -- CLAIMED HEROES {group} -- REWARDS - {str(quest_result)}\n")
-                    logger.info("Rewards: " + str(quest_result))
-                else:
-                    print(f"Quest not completed yet: {quest_info['completeAtTime'] - time.time()} seconds left")
-                    
-            except Exception as e:
-                still_questing_heroes.append(group)
-                with open(f"{error_log_path}/{today}.txt", "a+") as f:
-                    f.write(f"{datetime.now()} -- ERROR CLAIMING -- {group} -- WITH EXCEPTION {e}")
+                tx_receipt = questV2.complete_quest(hero, private_key, w3.eth.getTransactionCount(account_address), gas_price_gwei, tx_timeout)
+                quest_result = questV2.parse_complete_quest_receipt(tx_receipt)
                 
-    with open('questing_groups.txt', 'w+') as f:
-        for group in still_questing_heroes:
-            f.write(f"{group}\n")
+                with open(f"{completed_log_path}/{today}.txt", "a+") as f:
+                    f.write(f"{datetime.now()} -- CLAIMED HERO {hero} -- REWARDS - {str(quest_result)}\n")
+                logger.info("Rewards: " + str(quest_result))
+            else:
+                print(f"Quest not completed yet: {quest_info['completeAtTime'] - time.time()} seconds left")
+                
+        except Exception as e:
+            with open(f"{error_log_path}/{today}.txt", "a+") as f:
+                f.write(f"{datetime.now()} -- ERROR CLAIMING -- {hero} -- WITH EXCEPTION {e}")
 
 ####################################################################################################################################
 
