@@ -72,7 +72,7 @@ def show_log(file, type=None):
     with open(path, "r") as f:
         return render_template('log.html', logfiles = reversed(f.readlines()))
     
-    
+@app.route("/clear_questers")
 def clear_questing_file():
     file = open("questing_groups.txt","w")
     file.close()
