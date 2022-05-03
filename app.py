@@ -71,6 +71,11 @@ def show_log(file, type=None):
 
     with open(path, "r") as f:
         return render_template('log.html', logfiles = reversed(f.readlines()))
+    
+    
+def clear_questing_file():
+    file = open("questing_groups.txt","w")
+    file.close()
 
 if __name__ == '__main__':
       
