@@ -53,19 +53,23 @@ questV2 = quest_v2.Quest(rpc_server, logger)
 ####################################################################################################################################
 
 def complete_quests():
+    
+    print(f"Checking if there are completed Quests")
 
-    for hero in training_heroes: #indiscriminately 
+    for hero in training_heroes: #indiscriminately going to check if each hero if questing and claim as appropriate
         try:    
             quest_info = quest_utils.human_readable_quest(questV2.get_hero_quest(hero))
             
             if quest_info['completeAtTime'] and time.time() > quest_info['completeAtTime']:
-                
+                print(f"Found quest for hero {hero}")
                 tx_receipt = questV2.complete_quest(hero, private_key, w3.eth.getTransactionCount(account_address), gas_price_gwei, tx_timeout)
                 quest_result = questV2.parse_complete_quest_receipt(tx_receipt)
                 
                 with open(f"{completed_log_path}/{today}.txt", "a+") as f:
                     f.write(f"{datetime.now()} -- CLAIMED HERO {hero} -- REWARDS - {str(quest_result)}\n")
                 logger.info("Rewards: " + str(quest_result))
+            elif quest_info['completeAtTime']:
+                print(f"Found quest for hero {hero}, but they are still questing")
             else:
                 print(f"Quest not completed yet: {quest_info['completeAtTime'] - time.time()} seconds left")
                 
@@ -104,7 +108,7 @@ def start_quests():
         ready_to_quest.append(group)              
                 
         if ready_to_quest: #if we have heroes with at least 25 stamina for a given training quest
-            print(f"Questing Groups: {ready_to_quest}")
+            
             for group in ready_to_quest:
                 if group:
                     try:
