@@ -15,15 +15,15 @@ def autoquest():
     autoquester.complete_quests()
     autoquester.start_quests()
     
-def ping():
-    return ping(target='127.0.0.1')
+def auto_ping():
+    return ping('127.0.0.1')
 
 scheduler = BackgroundScheduler()
 scheduler.add_job(func=autoquest, trigger="interval", seconds=1200)
 scheduler.start()
 
 scheduler = BackgroundScheduler()
-scheduler.add_job(func=ping, trigger="interval", seconds=5)
+scheduler.add_job(func=auto_ping, trigger="interval", seconds=5)
 scheduler.start()
 
 # Shut down the scheduler when exiting the app
@@ -36,8 +36,8 @@ def landing():
     return render_template('home.html')
 
 @app.route('/ping', methods=['GET'])
-def ping():
-    return ping()
+def auto_ping():
+    return auto_ping()
 
 @app.route("/autoquesting")
 def autoquest():
