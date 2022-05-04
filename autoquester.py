@@ -8,6 +8,7 @@ import hero.utils.utils as hero_utils
 import quests.quest_v2 as quest_v2
 import hero.hero as heroes
 from quests.training import dancing, arm_wrestling, alchemist_assistance, card_game, darts, helping_the_farm, puzzle_solving, game_of_ball
+from quests.professions import foraging, minning, gardening, fishing
 from web3 import Web3
 from datetime import datetime, date
 from quests.utils import utils as quest_utils
@@ -15,7 +16,7 @@ from quests.utils import utils as quest_utils
 import base64
 
 
-QUESTING_ADDRESSES = {
+TRAINING_QUESTING_ADDRESSES = {
     'strength': arm_wrestling.QUEST_CONTRACT_ADDRESS, 
     'intelligence': alchemist_assistance.QUEST_CONTRACT_ADDRESS,
     'wisdom': puzzle_solving.QUEST_CONTRACT_ADDRESS,
@@ -26,6 +27,13 @@ QUESTING_ADDRESSES = {
     'dexterity': darts.QUEST_CONTRACT_ADDRESS
 }
 
+PROFESSION_QUESTING_ADDRESSES = {
+    'foraging': foraging.QUEST_CONTRACT_ADDRESS_V2,
+    'gardening': gardening.QUEST_CONTRACT_ADDRESS,
+    'mining': minning.JEWEL_QUEST_CONTRACT_ADDRESS,
+    'fishing': fishing.QUEST_CONTRACT_ADDRESS_V2
+}
+
 today = date.today()
 private_key = base64.b64decode(os.getenv('PRIVATE_KEY_ENCODED')).decode('utf-8')
 
@@ -34,6 +42,7 @@ completed_log_path = os.getenv('QUEST_COMPLETED_LOG_PATH')
 error_log_path = os.getenv('QUEST_ERROR_LOG_PATH')
 
 training_heroes = [int(hero_id) for hero_id in json.loads(os.getenv('TRAINING_HEROES'))]
+profession_heroes = [int(hero_id) for hero_id in json.loads(os.getenv('PROFESSION_HEROES'))]
 
 log_format = '%(asctime)s|%(name)s|%(levelname)s: %(message)s'
 
@@ -56,7 +65,7 @@ def complete_quests():
     
     print(f"Checking if there are completed Quests")
 
-    for hero in training_heroes: #indiscriminately going to check if each hero if questing and claim as appropriate
+    for hero in (training_heroes + profession_heroes): #indiscriminately going to check if each hero if questing and claim as appropriate
         try:    
             quest_info = quest_utils.human_readable_quest(questV2.get_hero_quest(hero))
             
@@ -79,7 +88,7 @@ def complete_quests():
 
 ####################################################################################################################################
 
-def start_quests():
+def start_training_quests():
     readable_heroes = []
     
     for id in training_heroes:
@@ -113,7 +122,7 @@ def start_quests():
                 if group:
                     try:
                         print(f"Questing {group} for {stat}")
-                        quest_contract = QUESTING_ADDRESSES[stat]
+                        quest_contract = TRAINING_QUESTING_ADDRESSES[stat]
                         questV2.start_quest(quest_contract, group, attempts, level, private_key, w3.eth.getTransactionCount(account_address), gas_price_gwei, tx_timeout)
                         with open(f"{start_log_path}/{today}.txt", 'a+') as f:
                             f.write(f"{datetime.now()} -- SENT HEROES {group} ON {stat} QUEST\n")
@@ -123,13 +132,76 @@ def start_quests():
                         print(e)
                         with open(f"{error_log_path}/{today}.txt", "a+") as f:
                             f.write(f"{datetime.now()} -- ERROR STARTING QUEST -- {group} -- WITH EXCEPTION {e}\n")
+                        
+def start_profession_quests():
+    
+    attempts = 5
+    level = 0
+    
+    readable_heroes = []
+    
+    for id in profession_heroes:
+        logger.info("Processing hero #"+str(id))
+            # owner = heroes.get_owner(id, rpc_server)
+        hero = heroes.get_hero(id, rpc_server)
+        readable_hero = heroes.human_readable_hero(hero)
+        readable_heroes.append(readable_hero)
+        
+        
+    profession_groups = hero_utils.group_by_profession(readable_heroes)
+    
+    for profession in profession_groups:
+        ready_to_quest = []
+        group = []
+        for hero in profession_groups[profession]:
+            if hero_utils.is_ready_to_quest(hero): #determines if the hero has at least 25 stamina and appends it to list
+                if len(group) < 6:
+                    group.append(hero.get('id'))
+                else:
+                    ready_to_quest.append(group)
+                    group = []
+                    group.append(hero.get('id'))   
+                    
+        
+        ready_to_quest.append(group)
+        
+        if ready_to_quest:
+            for group in ready_to_quest:
+                if group:
+                    try:
+                        print(f"Questing {group} for {profession}")
+                        quest_contract = PROFESSION_QUESTING_ADDRESSES[profession]
+                        questV2.start_quest(quest_contract, group, attempts, level, private_key, w3.eth.getTransactionCount(account_address), gas_price_gwei, tx_timeout)
+                        with open(f"{start_log_path}/{today}.txt", 'a+') as f:
+                            f.write(f"{datetime.now()} -- SENT HEROES {group} ON {profession} QUEST\n")
+                        with open(f"questing_groups.txt", "a+") as f:
+                            f.write(f"{group}\n")
+                    except Exception as e:
+                        print(e)
+                        with open(f"{error_log_path}/{today}.txt", "a+") as f:
+                            f.write(f"{datetime.now()} -- ERROR STARTING QUEST -- {group} -- WITH EXCEPTION {e}\n")
+        
+        for hero in readable_heroes:
+            if hero_utils.is_ready_to_quest(hero):
+                print(hero.get('info').get('statGenes').get('profession'))
+                
+            else:
+                quest_contract_address = PROFESSION_QUESTING_ADDRESSES[hero.get('info').get('statGenes').get('profession')]
+                # print(hero)
+
+        
+            
+        
+
+        
 
 if __name__ == "__main__":
         
     ####################################################################################################################################
     
     complete_quests()
-    start_quests()
+    start_training_quests()
+    start_profession_quests()
     
     ####################################################################################################################################
 

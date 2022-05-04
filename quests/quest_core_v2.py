@@ -92,7 +92,7 @@ def start_quest(quest_address, hero_ids, attempts, level, private_key, nonce, ga
     return tx_receipt
 
 
-def start_quests(quest_addresses, hero_idss, attempts, levels, private_key, nonce, gas_price_gwei, tx_timeout_seconds, rpc_address, logger):
+def start_training_quests(quest_addresses, hero_idss, attempts, levels, private_key, nonce, gas_price_gwei, tx_timeout_seconds, rpc_address, logger):
     w3 = Web3(Web3.HTTPProvider(rpc_address))
     account = w3.eth.account.privateKeyToAccount(private_key)
     w3.eth.default_account = account.address

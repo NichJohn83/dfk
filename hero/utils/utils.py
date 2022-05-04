@@ -321,6 +321,16 @@ def is_ready_to_quest(hero):
         ready = True    
     
     return ready
+
+def group_by_profession(heroes):
+    
+    groups = collections.defaultdict(list)
+    
+    for hero in heroes:
+        profession = hero.get('info').get('statGenes').get('profession')
+        groups[profession].append(hero)
+        
+    return groups
     
     
 

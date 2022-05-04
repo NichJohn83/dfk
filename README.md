@@ -103,7 +103,7 @@ All quest contracts are located in module [quests](https://github.com/0rtis/dfk/
 #### Quickstart
 [quest_example.py](https://github.com/0rtis/dfk/blob/master/quest_example.py)
 
-#### Foraging & Fishing quest
+####  & Fishing quest
 Each quest requires at least 7 stamina to complete. Check the current stamina of any given hero with `get_current_stamina`.
 Start the quest with `start_quest`. The second parameter is the number of attempt. To optimize the cost of gas, it is recommended
 to use a hero at full stamina and do 3 attempts every call.

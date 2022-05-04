@@ -1,0 +1,1 @@
+2022-05-04 11:02:29.394401 -- ERROR STARTING QUEST -- [184020] -- WITH EXCEPTION execution reverted: not enough stamina

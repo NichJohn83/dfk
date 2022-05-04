@@ -13,7 +13,8 @@ app = Flask(__name__)
 def autoquest():
     print("Autoquesting")
     autoquester.complete_quests()
-    autoquester.start_quests()
+    autoquester.start_training_quests()
+    autoquester.start_profession_quests()
     
 
 
@@ -33,7 +34,7 @@ def landing():
 @app.route("/autoquesting")
 def autoquest():
     autoquester.complete_quests()
-    autoquester.start_quests()
+    autoquester.start_training_quests()
     return render_template('home.html')
 
 @app.route("/logs/start_logs")
