@@ -35,6 +35,7 @@ def landing():
 def autoquest():
     autoquester.complete_quests()
     autoquester.start_training_quests()
+    autoquester.start_profession_quests()
     return render_template('home.html')
 
 @app.route("/logs/start_logs")
