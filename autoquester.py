@@ -30,9 +30,10 @@ TRAINING_QUESTING_ADDRESSES = {
 PROFESSION_QUESTING_ADDRESSES = {
     'foraging': foraging.QUEST_CONTRACT_ADDRESS_V2,
     'gardening': gardening.QUEST_CONTRACT_ADDRESS,
-    'mining': minning.JEWEL_QUEST_CONTRACT_ADDRESS,
+    'mining': minning.GOLD_QUEST_CONTRACT_ADDRESS,
     'fishing': fishing.QUEST_CONTRACT_ADDRESS_V2
 }
+
 
 today = date.today()
 private_key = base64.b64decode(os.getenv('PRIVATE_KEY_ENCODED')).decode('utf-8')
