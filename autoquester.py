@@ -66,9 +66,9 @@ questV1 = quest_v1.Quest(rpc_server, logger)
 
 def complete_quests():
     
-    print(f"Checking if there are completed Quests")
+    print(f"Checking if there are completed Training Quests")
 
-    for hero in (training_heroes + profession_heroes): #indiscriminately going to check if each hero if questing and claim as appropriate
+    for hero in training_heroes: #indiscriminately going to check if each hero if questing and claim as appropriate
         try:    
             quest_info = quest_utils.human_readable_quest(questV2.get_hero_quest(hero))
             
@@ -91,6 +91,50 @@ def complete_quests():
         except Exception as e:
             with open(f"{error_log_path}/{today}.txt", "a+") as f:
                 f.write(f"{datetime.now()} -- ERROR CLAIMING -- {hero} -- WITH EXCEPTION {e}")
+    
+    print(f"Checking is there are completed Profession Quests")
+    
+    profession_groups = hero_utils.group_by_profession(profession_heroes)
+    for profession in profession_heroes:
+        for hero in profession_heroes[profession]:
+            # quest_info = None
+            if profession == 'mining':
+                try:
+                    quest_info = quest_utils.human_readable_quest(questV1.get_hero_quest(hero))
+                except Exception as e:
+                    with open(f"{error_log_path}/{today}.txt", "a+") as f:
+                        f.write(f"{datetime.now()} -- ERROR CLAIMING -- {hero} -- WITH EXCEPTION {e}")
+            else:
+                try:    
+                    quest_info = quest_utils.human_readable_quest(questV2.get_hero_quest(hero))
+                except Exception as e:
+                    with open(f"{error_log_path}/{today}.txt", "a+") as f:
+                        f.write(f"{datetime.now()} -- ERROR CLAIMING -- {hero} -- WITH EXCEPTION {e}")
+            
+            if quest_info:
+                if quest_info['completeAtTime'] and time.time() > quest_info['completeAtTime']:
+                    print(f"Found quest for hero {hero}")
+                    if profession == 'mining':
+                        tx_receipt = questV1.complete_quest(hero, private_key, w3.eth.getTransactionCount(account_address), gas_price_gwei, tx_timeout)
+                        quest_result = questV1.parse_complete_quest_receipt(tx_receipt)
+                        
+                        with open(f"{completed_log_path}/{today}.txt", "a+") as f:
+                            f.write(f"{datetime.now()} -- CLAIMED HERO {hero} -- REWARDS - {str(quest_result)}\n")
+                        logger.info("Rewards: " + str(quest_result))
+                    else:
+                        tx_receipt = questV2.complete_quest(hero, private_key, w3.eth.getTransactionCount(account_address), gas_price_gwei, tx_timeout)
+                        quest_result = questV2.parse_complete_quest_receipt(tx_receipt)
+                        
+                        with open(f"{completed_log_path}/{today}.txt", "a+") as f:
+                            f.write(f"{datetime.now()} -- CLAIMED HERO {hero} -- REWARDS - {str(quest_result)}\n")
+                        logger.info("Rewards: " + str(quest_result))
+                elif quest_info['completeAtTime']:
+                    print(f"Found quest for hero {hero}, but they are still questing")
+                else:
+                    print(f"Quest not completed yet: {quest_info['completeAtTime'] - time.time()} seconds left")
+            else:
+                print(f"No quest info found for {hero}")
+
 
 ####################################################################################################################################
 
