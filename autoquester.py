@@ -198,7 +198,7 @@ def start_profession_quests():
         if profession == 'mining':
             group = []
             for hero in profession_groups[profession]:
-                if hero_utils.get_current_stamina >= 20:
+                if hero_utils.get_current_stamina(hero) >= 20:
                     group.append(hero.get(id))
             try:
                 print(f"Questing {group} for {profession}")
