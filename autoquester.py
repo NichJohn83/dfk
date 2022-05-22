@@ -109,6 +109,7 @@ def complete_quests():
     
     for profession in profession_groups:
         for hero in profession_groups[profession]:
+            hero = hero.get('id')
             # quest_info = None
             if profession == 'mining':
                 try:
