@@ -266,13 +266,14 @@ def start_profession_quests():
                 if hero_utils.get_current_stamina(hero) >= 20:
                     group.append(hero.get('id'))
             try:
-                print(f"Questing {group} for {profession}")
-                quest_contract = PROFESSION_QUESTING_ADDRESSES[profession]
-                questV1.start_quest(quest_contract, group, 1, private_key, w3.eth.getTransactionCount(account_address), gas_price_gwei, tx_timeout) #1 is the for the 'attempts' variable. Unsure why 1 quests that hero for their current total stamina
-                with open(f"{start_log_path}/{today}.txt", 'a+') as f:
-                    f.write(f"{datetime.now()} -- SENT HEROES {group} ON {profession} QUEST\n")
-                with open(f"questing_groups.txt", "a+") as f:
-                    f.write(f"{group}\n")
+                if group:
+                    print(f"Questing {group} for {profession}")
+                    quest_contract = PROFESSION_QUESTING_ADDRESSES[profession]
+                    questV1.start_quest(quest_contract, group, 1, private_key, w3.eth.getTransactionCount(account_address), gas_price_gwei, tx_timeout) #1 is the for the 'attempts' variable. Unsure why 1 quests that hero for their current total stamina
+                    with open(f"{start_log_path}/{today}.txt", 'a+') as f:
+                        f.write(f"{datetime.now()} -- SENT HEROES {group} ON {profession} QUEST\n")
+                    with open(f"questing_groups.txt", "a+") as f:
+                        f.write(f"{group}\n")
             except Exception as e:
                 print(e)
                 with open(f"{error_log_path}/{today}.txt", "a+") as f:
