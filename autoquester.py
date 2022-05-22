@@ -94,9 +94,21 @@ def complete_quests():
     
     print(f"Checking is there are completed Profession Quests")
     
-    profession_groups = hero_utils.group_by_profession(profession_heroes)
-    for profession in profession_heroes:
-        for hero in profession_heroes[profession]:
+    readable_heroes = []
+    
+    for id in profession_heroes:
+        # logger.info("Processing hero #"+str(id))
+            # owner = heroes.get_owner(id, rpc_server)
+        hero = heroes.get_hero(id, rpc_server)
+        readable_hero = heroes.human_readable_hero(hero)
+        # print(readable_hero)
+        # print('\n')
+        readable_heroes.append(readable_hero)
+        
+    profession_groups = hero_utils.group_by_profession(readable_heroes)
+    
+    for profession in profession_groups:
+        for hero in profession_groups[profession]:
             # quest_info = None
             if profession == 'mining':
                 try:
