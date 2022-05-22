@@ -195,11 +195,13 @@ def start_profession_quests():
     profession_groups = hero_utils.group_by_profession(readable_heroes)
         
     for profession in profession_groups:
+        
+        ##### Gold Mining Quests
         if profession == 'mining':
             group = []
             for hero in profession_groups[profession]:
                 if hero_utils.get_current_stamina(hero) >= 20:
-                    group.append(hero.get(id))
+                    group.append(hero.get('id'))
             try:
                 print(f"Questing {group} for {profession}")
                 quest_contract = PROFESSION_QUESTING_ADDRESSES[profession]
@@ -213,7 +215,7 @@ def start_profession_quests():
                 with open(f"{error_log_path}/{today}.txt", "a+") as f:
                     f.write(f"{datetime.now()} -- ERROR STARTING QUEST -- {group} -- WITH EXCEPTION {e}\n")
 
-            
+        ##### Fishing and Foraging Quests 
         else:
             ready_to_quest = []
             group = []
