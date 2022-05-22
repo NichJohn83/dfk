@@ -6,6 +6,7 @@ import sys
 from tokenize import group
 import hero.utils.utils as hero_utils
 import quests.quest_v2 as quest_v2
+import quests.quest_v1 as quest_v1
 import hero.hero as heroes
 from quests.training import dancing, arm_wrestling, alchemist_assistance, card_game, darts, helping_the_farm, puzzle_solving, game_of_ball
 from quests.professions import foraging, minning, gardening, fishing
@@ -59,6 +60,7 @@ tx_timeout = 30
 w3 = Web3(Web3.HTTPProvider(rpc_server))
 account_address = w3.eth.account.privateKeyToAccount(private_key).address
 questV2 = quest_v2.Quest(rpc_server, logger)
+questV1 = quest_v1.Quest(rpc_server, logger)
 
 ####################################################################################################################################
 
@@ -134,6 +136,45 @@ def start_training_quests():
                         with open(f"{error_log_path}/{today}.txt", "a+") as f:
                             f.write(f"{datetime.now()} -- ERROR STARTING QUEST -- {group} -- WITH EXCEPTION {e}\n")
                         
+                        
+
+def mining_quests():
+    
+    
+    hero_list = [152391]
+    readable_heroes = []
+    
+    for id in hero_list:
+        logger.info("Processing hero #"+str(id))
+            # owner = heroes.get_owner(id, rpc_server)
+        hero = heroes.get_hero(id, rpc_server)
+        readable_hero = heroes.human_readable_hero(hero)
+        print(readable_hero)
+        print('\n')
+        readable_heroes.append(readable_hero)
+    
+    level = 0
+    # attempts = 1
+    profession_groups = hero_utils.group_by_profession(readable_heroes)
+
+    for profession in profession_groups:
+        for hero in profession_groups[profession]:
+            group = [hero.get('id')]
+            try:
+                print(f"Questing {group} for {profession}")
+                attempts = hero_utils.get_current_stamina(hero)
+                quest_contract = PROFESSION_QUESTING_ADDRESSES[profession]
+                questV1.start_quest(quest_contract, group, 1, private_key, w3.eth.getTransactionCount(account_address), gas_price_gwei, tx_timeout)
+                # with open(f"{start_log_path}/{today}.txt", 'a+') as f:
+                #     f.write(f"{datetime.now()} -- SENT HEROES {group} ON {profession} QUEST\n")
+                # with open(f"questing_groups.txt", "a+") as f:
+                #     f.write(f"{group}\n")
+            except Exception as e:
+                print(e)
+                # with open(f"{error_log_path}/{today}.txt", "a+") as f:
+                #     f.write(f"{datetime.now()} -- ERROR STARTING QUEST -- {group} -- WITH EXCEPTION {e}\n")
+    return
+
 def start_profession_quests():
     
     attempts = 5
@@ -146,50 +187,64 @@ def start_profession_quests():
             # owner = heroes.get_owner(id, rpc_server)
         hero = heroes.get_hero(id, rpc_server)
         readable_hero = heroes.human_readable_hero(hero)
+        # print(readable_hero)
+        # print('\n')
         readable_heroes.append(readable_hero)
         
         
     profession_groups = hero_utils.group_by_profession(readable_heroes)
-    
+        
     for profession in profession_groups:
-        ready_to_quest = []
-        group = []
-        for hero in profession_groups[profession]:
-            if hero_utils.is_ready_to_quest(hero): #determines if the hero has at least 25 stamina and appends it to list
-                if len(group) < 6:
-                    group.append(hero.get('id'))
-                else:
-                    ready_to_quest.append(group)
-                    group = []
-                    group.append(hero.get('id'))   
-                    
-        
-        ready_to_quest.append(group)
-        
-        if ready_to_quest:
-            for group in ready_to_quest:
-                if group:
-                    try:
-                        print(f"Questing {group} for {profession}")
-                        quest_contract = PROFESSION_QUESTING_ADDRESSES[profession]
-                        questV2.start_quest(quest_contract, group, attempts, level, private_key, w3.eth.getTransactionCount(account_address), gas_price_gwei, tx_timeout)
-                        with open(f"{start_log_path}/{today}.txt", 'a+') as f:
-                            f.write(f"{datetime.now()} -- SENT HEROES {group} ON {profession} QUEST\n")
-                        with open(f"questing_groups.txt", "a+") as f:
-                            f.write(f"{group}\n")
-                    except Exception as e:
-                        print(e)
-                        with open(f"{error_log_path}/{today}.txt", "a+") as f:
-                            f.write(f"{datetime.now()} -- ERROR STARTING QUEST -- {group} -- WITH EXCEPTION {e}\n")
-        
-        for hero in readable_heroes:
-            if hero_utils.is_ready_to_quest(hero):
-                print(hero.get('info').get('statGenes').get('profession'))
-                
-            else:
-                quest_contract_address = PROFESSION_QUESTING_ADDRESSES[hero.get('info').get('statGenes').get('profession')]
-                # print(hero)
+        if profession == 'mining':
+            group = []
+            for hero in profession_groups[profession]:
+                if hero_utils.get_current_stamina >= 20:
+                    group.append(hero.get(id))
+            try:
+                print(f"Questing {group} for {profession}")
+                quest_contract = PROFESSION_QUESTING_ADDRESSES[profession]
+                questV1.start_quest(quest_contract, group, 1, private_key, w3.eth.getTransactionCount(account_address), gas_price_gwei, tx_timeout) #1 is the for the 'attempts' variable. Unsure why 1 quests that hero for their current total stamina
+                with open(f"{start_log_path}/{today}.txt", 'a+') as f:
+                    f.write(f"{datetime.now()} -- SENT HEROES {group} ON {profession} QUEST\n")
+                with open(f"questing_groups.txt", "a+") as f:
+                    f.write(f"{group}\n")
+            except Exception as e:
+                print(e)
+                with open(f"{error_log_path}/{today}.txt", "a+") as f:
+                    f.write(f"{datetime.now()} -- ERROR STARTING QUEST -- {group} -- WITH EXCEPTION {e}\n")
 
+            
+        else:
+            ready_to_quest = []
+            group = []
+            for hero in profession_groups[profession]:
+                if hero_utils.is_ready_to_quest(hero): #determines if the hero has at least 25 stamina and appends it to list
+                    if len(group) < 6:
+                        group.append(hero.get('id'))
+                    else:
+                        ready_to_quest.append(group)
+                        group = []
+                        group.append(hero.get('id'))   
+                        
+            
+            ready_to_quest.append(group)
+            
+            
+            if ready_to_quest:
+                for group in ready_to_quest:
+                    if group:
+                        try:
+                            print(f"Questing {group} for {profession}")
+                            quest_contract = PROFESSION_QUESTING_ADDRESSES[profession]
+                            questV2.start_quest(quest_contract, group, attempts, level, private_key, w3.eth.getTransactionCount(account_address), gas_price_gwei, tx_timeout)
+                            with open(f"{start_log_path}/{today}.txt", 'a+') as f:
+                                f.write(f"{datetime.now()} -- SENT HEROES {group} ON {profession} QUEST\n")
+                            with open(f"questing_groups.txt", "a+") as f:
+                                f.write(f"{group}\n")
+                        except Exception as e:
+                            print(e)
+                            with open(f"{error_log_path}/{today}.txt", "a+") as f:
+                                f.write(f"{datetime.now()} -- ERROR STARTING QUEST -- {group} -- WITH EXCEPTION {e}\n")
         
             
         
@@ -200,6 +255,7 @@ if __name__ == "__main__":
         
     ####################################################################################################################################
     
+    # mining_quests()
     complete_quests()
     start_training_quests()
     start_profession_quests()
