@@ -45,6 +45,7 @@ error_log_path = os.getenv('QUEST_ERROR_LOG_PATH')
 
 training_heroes = [int(hero_id) for hero_id in json.loads(os.getenv('TRAINING_HEROES'))]
 profession_heroes = [int(hero_id) for hero_id in json.loads(os.getenv('PROFESSION_HEROES'))]
+still_questing = []
 
 log_format = '%(asctime)s|%(name)s|%(levelname)s: %(message)s'
 
@@ -82,7 +83,8 @@ def complete_quests():
                         f.write(f"{datetime.now()} -- CLAIMED HERO {hero} -- REWARDS - {str(quest_result)}\n")
                     logger.info("Rewards: " + str(quest_result))
                 elif quest_info['completeAtTime']:
-                    print(f"Found quest for hero {hero}, but they are still questing")
+                    print(f"Found quest for hero {hero}, but they are still questing -- {quest_info['completeAtTime'] - time.time()} seconds left")
+                    still_questing.append(hero)
                 else:
                     print(f"Quest not completed yet: {quest_info['completeAtTime'] - time.time()} seconds left")
             else:
@@ -142,7 +144,8 @@ def complete_quests():
                             f.write(f"{datetime.now()} -- CLAIMED HERO {hero} -- REWARDS - {str(quest_result)}\n")
                         logger.info("Rewards: " + str(quest_result))
                 elif quest_info['completeAtTime']:
-                    print(f"Found quest for hero {hero}, but they are still questing")
+                    print(f"Found quest for hero {hero}, but they are still questing -- {quest_info['completeAtTime'] - time.time()} seconds left")
+                    still_questing.append(hero)
                 else:
                     print(f"Quest not completed yet: {quest_info['completeAtTime'] - time.time()} seconds left")
             else:
@@ -154,7 +157,7 @@ def complete_quests():
 def start_training_quests():
     readable_heroes = []
     
-    for id in training_heroes:
+    for id in list(set(training_heroes) - set(still_questing)):
         logger.info("Processing hero #"+str(id))
         # owner = heroes.get_owner(id, rpc_server)
         hero = heroes.get_hero(id, rpc_server)
@@ -242,7 +245,7 @@ def start_profession_quests():
     
     readable_heroes = []
     
-    for id in profession_heroes:
+    for id in list(set(profession_heroes) - set(still_questing)):
         logger.info("Processing hero #"+str(id))
             # owner = heroes.get_owner(id, rpc_server)
         hero = heroes.get_hero(id, rpc_server)
@@ -321,6 +324,7 @@ if __name__ == "__main__":
     complete_quests()
     start_training_quests()
     start_profession_quests()
+    still_questing = []
     
     ####################################################################################################################################
 
